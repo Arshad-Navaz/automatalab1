@@ -78,7 +78,8 @@ elif page=="Lexer Bug Lab":
     st.subheader("Find a lexer defect")
     ref=reference_lexer()
     st.write("Abstract input alphabet: a = letter, d = digit; operators =, ==, <, <=")
-    mutant=missing_le_mutant(ref)\n    r=product_bfs(ref,mutant)
+    mutant=missing_le_mutant(ref)
+    r=product_bfs(ref,mutant)
     st.error(f"Exact DFA comparison finds a defect. Shortest counterexample: {r.counterexample}")
     word=st.text_input("Test a token","<=")
     try:
