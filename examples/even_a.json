@@ -1,0 +1,5 @@
+{
+  "states": ["even", "odd"], "alphabet": ["a", "b"], "start": "even",
+  "accepting": ["even"],
+  "transitions": {"even": {"a": "odd", "b": "even"}, "odd": {"a": "even", "b": "odd"}}
+}
