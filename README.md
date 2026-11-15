@@ -1,80 +1,80 @@
-# AutomataLab
+# AutomataLab — Interactive Formal Verification Toolkit
 
-A practical Formal Language and Automata toolkit demonstrating three software-verification ideas:
+AutomataLab is a learning and demonstration tool for three Formal Language and Automata applications: finite-state loop detection, lexer bug detection, and DFA language-equivalence checking.
 
-1. **Finite-state loop detection** — detect a reachable repeated state in a deterministic finite transition system.
-2. **Lexer bug detection** — model a small token recogniser as a DFA, mutate a transition, and find an input that exposes the defect.
-3. **Program equivalence** — compare two DFAs using product-automaton breadth-first search and return a shortest distinguishing string.
+## Features
+- Interactive Streamlit dashboard with four workspaces.
+- DFA JSON editor, state-diagram visualisation, and input-string testing.
+- DFA equivalence using product-automaton breadth-first search (BFS).
+- Shortest distinguishing string when two DFA languages differ.
+- Reference lexer DFA and a deliberate mutation that breaks recognition of `<=`.
+- Exact reachable-cycle detection for deterministic finite-state transition systems.
+- Command-line demonstrations and automated unit tests.
+
+> **Scope:** Results are exact for the finite models entered. This project does not solve termination or semantic equivalence for arbitrary unrestricted programs; those general problems are undecidable.
 
 ## Requirements
+- Python 3.10+
+- Streamlit, NetworkX and Matplotlib for the dashboard
 
-- Python 3.10 or later
-- No third-party packages required
+## Run locally
 
-## Setup
-
+### macOS / Linux
 ```bash
 git clone https://github.com/Arshad-Navaz/automatalab1.git
 cd automatalab1
-python3 -m unittest discover -s tests -v
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
-## Try the modules
-
-```python
-from automatalab.lexer import reference_lexer, find_mutant_counterexample
-from automatalab.loops import analyse
-
-lexer = reference_lexer()
-print(lexer.run("a"))       # True: identifier-like token
-print(lexer.run("<="))      # True: less-than-or-equal token
-print(lexer.run("ad"))      # False: invalid mixed token
-
-bug = find_mutant_counterexample()
-print(bug.equivalent)       # False
-print(bug.counterexample)   # <=
-
-loop = analyse({"S0": "S1", "S1": "S2", "S2": "S1"}, "S0", "HALT")
-print(loop["cycle"])        # ['S1', 'S2', 'S1']
+### Windows
+```powershell
+git clone https://github.com/Arshad-Navaz/automatalab1.git
+cd automatalab1
+py -m venv .venv
+.venv\Scripts\activate
+py -m pip install --upgrade pip
+pip install -r requirements.txt
+streamlit run app.py
 ```
 
-## How it works
+Open the local URL printed by Streamlit (usually http://localhost:8501).
 
-### DFA equivalence
-
-The product-BFS algorithm explores state pairs from the two DFAs. If exactly one state in a pair is accepting, the input used to reach that pair distinguishes the languages. BFS guarantees that this counterexample is shortest. If no such pair is reachable, the DFAs are equivalent.
-
-### Lexer bug detection
-
-The lexer recognises abstract input classes: `a` for a letter, `d` for a digit, and literal `=` and `<` operator characters. The example mutant breaks the transition that recognises `<=`. Equivalence checking returns the shortest input that reveals the defect.
-
-### Infinite-loop detection
-
-A deterministic finite transition system has one next state per current state. During execution, revisiting a state before reaching the halt state proves that execution will repeat the same cycle indefinitely. This is exact for the finite-state model supplied.
-
-## Important limitation
-
-This project analyses **finite automata and finite-state models**. It does not solve the halting problem or prove semantic equivalence for arbitrary unrestricted programs; those general problems are undecidable.
+## Run tests and CLI
+```bash
+python -m unittest discover -s tests -v
+python -m automatalab demo
+```
 
 ## Project structure
-
 ```text
 automatalab1/
+├── app.py
 ├── automatalab/
+│   ├── __init__.py
 │   ├── automata.py
 │   ├── lexer.py
 │   ├── loops.py
-│   └── __init__.py
+│   └── __main__.py
 ├── examples/
-│   ├── even_a.json
-│   └── odd_a.json
 ├── tests/
-│   └── test_project.py
+├── requirements.txt
 ├── pyproject.toml
-├── LICENSE
 └── README.md
 ```
 
-## Academic context
+## Algorithms
+### DFA equivalence
+The product construction explores reachable pairs of states. A pair where exactly one component is accepting identifies a distinguishing input. BFS returns a shortest such string. If no such pair is reachable, the languages are equivalent.
 
-AutomataLab is the implementation companion to a Formal Language and Automata report on infinite-loop detection, compiler/lexer bug detection, and program equivalence checking. It is intended for learning, demonstrations, and controlled experiments.
+### Lexer verification
+The reference lexer recognises abstract identifiers, integers and simple operators over the alphabet `{a,d,=,<}`. A deliberately modified transition causes the `<=` token to be rejected. Equivalence checking detects the shortest counterexample.
+
+### Loop detection
+A deterministic finite execution either reaches its halt state or repeats a state. Repetition before halt proves that the model will cycle forever.
+
+## Academic use
+This software is intended for education, formal-language demonstrations, and controlled experiments. It is not a production compiler verifier.
