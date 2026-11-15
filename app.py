@@ -71,14 +71,14 @@ elif page=="Equivalence Checker":
             else:
                 w=r.counterexample or ""
                 st.error(f"Shortest counterexample: {w if w else 'ε (empty string)'}")
-                st.write(f"DFA A: {'accepts' if x.run(w) else 'rejects'} · DFA B: {'accepts' if y.run(w) else 'rejects'}")
+                st.write(f"DFA A: {'accepts' if x.accepts(w) else 'rejects'} · DFA B: {'accepts' if y.accepts(w) else 'rejects'}")
         except Exception as e: st.error(str(e))
 
 elif page=="Lexer Bug Lab":
     st.subheader("Find a lexer defect")
     ref=reference_lexer()
     st.write("Abstract input alphabet: a = letter, d = digit; operators =, ==, <, <=")
-    r=find_mutant_counterexample()
+    mutant=missing_le_mutant(ref)\n    r=product_bfs(ref,mutant)
     st.error(f"Exact DFA comparison finds a defect. Shortest counterexample: {r.counterexample}")
     word=st.text_input("Test a token","<=")
     try:
