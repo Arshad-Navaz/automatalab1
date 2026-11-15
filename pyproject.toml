@@ -4,9 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "automatalab"
-version = "1.0.0"
-description = "Finite automata toolkit for loop detection, lexer bug detection and equivalence checking"
+version = "1.1.0"
+description = "Interactive finite automata verification and bug detection toolkit"
 requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = ["streamlit>=1.36,<2.0", "networkx>=3.2,<4.0", "matplotlib>=3.8,<4.0"]
 
 [tool.setuptools]
 packages = ["automatalab"]
