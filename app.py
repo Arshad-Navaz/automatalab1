@@ -2,9 +2,9 @@ import json
 import streamlit as st
 import networkx as nx
 import matplotlib.pyplot as plt
-from automatalab.automata import DFA, equivalent
-from automatalab.lexer import reference_lexer, find_mutant_counterexample
-from automatalab.loops import analyse
+from automatalab.automata import DFA, product_bfs
+from automatalab.lexer import reference_lexer, missing_le_mutant
+from automatalab.loops import analyse_termination
 
 st.set_page_config(page_title="AutomataLab", page_icon="🔁", layout="wide")
 st.title("🔁 AutomataLab")
@@ -51,7 +51,7 @@ elif page=="DFA Playground":
         draw_dfa(d,"Your DFA")
         word=st.text_input("Input string","abba")
         if st.button("Test string",type="primary"):
-            ok=d.run(word); (st.success if ok else st.error)(f"{'ACCEPTED' if ok else 'REJECTED'}: {word or 'ε'}")
+            ok=d.accepts(word); (st.success if ok else st.error)(f"{'ACCEPTED' if ok else 'REJECTED'}: {word or 'ε'}")
         st.download_button("Download DFA JSON",raw,"my_dfa.json","application/json")
     except Exception as e: st.error(f"Invalid DFA: {e}")
 
@@ -64,7 +64,7 @@ elif page=="Equivalence Checker":
     with c2: br=st.text_area("DFA B",json.dumps(b0,indent=2),height=280)
     if st.button("Compare",type="primary"):
         try:
-            x,y=parse_dfa(ar),parse_dfa(br); r=equivalent(x,y)
+            x,y=parse_dfa(ar),parse_dfa(br); r=product_bfs(x,y)
             st.metric("Language result","Equivalent" if r.equivalent else "Not equivalent")
             st.write(f"State pairs explored: {r.explored_pairs}")
             if r.equivalent: st.success("Both DFAs accept the same language.")
@@ -82,7 +82,7 @@ elif page=="Lexer Bug Lab":
     st.error(f"Exact DFA comparison finds a defect. Shortest counterexample: {r.counterexample}")
     word=st.text_input("Test a token","<=")
     try:
-        st.write(f"Reference lexer: {'accept' if ref.run(word) else 'reject'}")
+        st.write(f"Reference lexer: {'accept' if ref.accepts(word) else 'reject'}")
         st.caption("The mutant intentionally breaks the transition that recognises <=.")
     except Exception as e: st.error(str(e))
     with st.expander("Reference lexer state diagram"):
@@ -98,7 +98,7 @@ elif page=="Loop Analyzer":
     if st.button("Analyze",type="primary"):
         try:
             trans=dict(part.strip().split(":",1) for part in edges.split(",") if part.strip())
-            r=analyse(trans,start,halt)
+            r=analyse_termination(trans,start,halt)
             if r["terminates"]: st.success("Execution reaches the halt state.")
             else: st.error("Reachable cycle: "+" → ".join(r["cycle"]))
             st.write("Execution path: "+" → ".join(r["path"]))
